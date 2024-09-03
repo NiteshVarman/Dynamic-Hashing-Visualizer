@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hashing with Linear Collisions</title>
+  <style>
+    /* CSS styling */
+    fieldset {
+      background-color: rgb(255, 255, 255);
+      border: 3px solid rgb(202, 179, 114);
+      border-top-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      margin-left: 100px;
+      margin-right: 100px;
+      margin-top: 50px;
+    }
+    fieldset:hover {
+      box-shadow: 0px 0px 10px 5px #4CAF50;
+    }
+    .ti {
+      text-align: center;
+      font-size: 50px;
+    }
+    th.ta {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+    }
+    .arrayTextBox {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+    }
+    button {
+      padding: 8px 12px;
+      font-size: 16px;
+      border-radius: 4px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .cs {
+      font-size: 20px;
+    }
+    .me {
+      font-size: xx-large;
+    }
+    .bv {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      object-fit: cover;
+      opacity: 0.9;
+    }
+  </style>
+  <script> 
+    var hashTable;
+    function initializeTable(tableSize)
+    {
+      hashTable = new Array(tableSize);
+    }
+    function hashValue() {
+      var inputField = document.getElementById("inputValue");
+      var tableSizeField = document.getElementById("tableSize");
+      var input = inputField.value;
+      var tableSize = parseInt(tableSizeField.value);
+      
+      if (!hashTable) 
+      {
+        initializeTable(tableSize);
+      }
+      var hash;
+      if (typeof input === 'number') {
+        hash = input % tableSize; // Initial hash value for numbers
+      } else {
+        hash = calculateHash(input, tableSize); // Initial hash value for strings
+      }
+      
+      var collisions = 0;
+      
+      while (hashTable[hash] !== undefined) {
+        collisions++;
+        hash++;
+        
+        if (hash >= tableSize) {
+          hash = 0; // Wrap around to the beginning
+        }
+      }
+      
+      hashTable[hash] = input;
+      
+      var output = "Hashed value: " + input + "<br>";
+      output += "Collisions: " + collisions + "<br>";
+      output += "Hash table: " + hashTable.join(", ");
+      
+      document.getElementById("output").innerHTML = output;
+      
+      // Clear input field
+      inputField.value = "";
+      
+      // Update text boxes
+      updateTextBoxes();
+    }
+    
+    function removeValue() {
+      var removeField = document.getElementById("removeValue");
+      var valueToRemove = removeField.value;
+      
+      if (hashTable) {
+        var index = hashTable.indexOf(valueToRemove);
+        
+        if (index !== -1) {
+          hashTable[index] = undefined;
+          
+          var output = "Value " + valueToRemove + " removed from hash table.";
+          output += "<br>Hash table: " + hashTable.join(", ");
+          
+          document.getElementById("output").innerHTML = output;
+        } else {
+          var output = "Value " + valueToRemove + " not found in hash table.";
+          
+          document.getElementById("output").innerHTML = output;
+        }
+      } else {
+        var output = "Hash table is empty.";
+        
+        document.getElementById("output").innerHTML = output;
+      }
+      
+      // Clear remove field
+      removeField.value = "";
+      
+      // Update text boxes
+      updateTextBoxes();
+    }
+    
+    function searchValue() {
+      var searchField = document.getElementById("searchValue");
+      var valueToSearch = searchField.value;
+      
+      if (hashTable) {
+        var hash = calculateHash(valueToSearch, hashTable.length); // Initial hash value
+        var collisions = 0;
+        
+        while (hashTable[hash] !== valueToSearch) {
+          collisions++;
+          hash++;
+          
+          if (hash >= hashTable.length) {
+            hash = 0; // Wrap around to the beginning
+          }
+          
+          if (hashTable[hash] === undefined || collisions >= hashTable.length) {
+            var output = "Value " + valueToSearch + " not found in hash table.";
+            
+            document.getElementById("output").innerHTML = output;
+            return;
+          }
+        }
+        
+        var output = "Value " + valueToSearch + " found in hash table at index " + hash + ".";
+        
+        document.getElementById("output").innerHTML = output;
+      } else {
+        var output = "Hash table is empty.";
+        
+        document.getElementById("output").innerHTML = output;
+      }
+      
+      // Clear search field
+      searchField.value = "";
+    }
+    
+    function updateTextBoxes() {
+      var tableSize = hashTable.length;
+      var textBoxesContainer = document.getElementById("textBoxesContainer");
+      textBoxesContainer.innerHTML = ""; // Clear existing text boxes
+      for (var i = 0; i < tableSize; i++)
+      {
+        var textBox = document.createElement("input");
+        textBox.type = "text";
+        textBox.className = "arrayTextBox";
+        textBox.disabled = true;
+        if (hashTable[i] !== undefined)
+        {
+          textBox.value = hashTable[i];
+        }
+        textBoxesContainer.appendChild(textBox);
+      }
+    }
+    
+    function calculateHash(value, tableSize) {
+      if (typeof value === 'number') {
+        return value % tableSize; // Hash calculation for numbers
+      } else {
+        var hash = 0;
+        for (var i = 0; i < value.length; i++) {
+          hash += value.charCodeAt(i);
+        }
+        return hash % tableSize; // Hash calculation for strings
+      }
+    }
+  </script>
+</head>
+<body>
+  <video class="bv" autoplay loop muted>
+    <source src="https://mazwai.com/videvo_files/video/free/2020-01/small_watermarked/200116_Lens%20effect_4k_070_preview.webm" type="video/mp4">
+ </video>
+  <fieldset>
+    <h1 class="ti">Hashing with Linear Collision</h1>
+  
+    <label for="inputValue"><span class="cs">Input Value:</span></label>
+    <input type="text" id="inputValue">
+  
+    <br><br>
+  
+    <label for="tableSize"><span class="cs">Table Size:</span></label>
+    <input type="text" id="tableSize">
+  
+    <br><br>
+  
+    <button onclick="hashValue()">Hash</button>
+  
+    <br><br>
+  
+    <label for="removeValue"><span class="cs">Remove Value:</span></label>
+    <input type="text" id="removeValue">
+  
+    <br><br>
+  
+    <button onclick="removeValue()">Remove</button>
+  
+    <br><br>
+  
+    <label for="searchValue"><span class="cs">Search Value:</span></label>
+    <input type="text" id="searchValue">
+
+    <br><br>
+
+    <button onclick="searchValue()">Search</button>
+
+    <br><br>
+
+    <span class="me">Hash Table</span> 
+
+    <div id="textBoxesContainer" class="ta"></div>
+
+    <br><br>
+
+    <div id="output"></div>
+
+    <br><br>
+
+    <script>
+      // Call the updateTextBoxes() function initially to display the empty hash table
+      updateTextBoxes();
+    </script>
+  </fieldset>
+</body>
+</html>
